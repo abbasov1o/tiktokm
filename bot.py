@@ -9,10 +9,10 @@ import asyncio
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, CallbackContext
 from telegram.ext import filters
-import threading
+import multiprocessing
 
 # Replace with your Telegram bot token
-TOKEN = "1715456897:AAF4RTmQOKp9H-_y-T5UDwgOLuVZO379aDI"  # Ensure to replace with your actual bot token
+TOKEN = "1715456897:AAF4RTmQOKp9H-_y-T5UDwgOLuVZO379aDI"
 
 # Set up logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
@@ -85,7 +85,6 @@ if st.button("Download Video"):
         # Display processing message
         st.write("Processing... Please wait.")
         
-        # Start a new thread to avoid blocking the Streamlit app
         def process_tiktok_video(url):
             video_url = url.strip()
             username = extract_username(video_url)  # Extract username from the URL
@@ -116,10 +115,12 @@ if st.button("Download Video"):
                 if audio_path:  # Check if audio_path is not None before removing
                     os.remove(audio_path)
 
-        # Run the process in a separate thread
-        threading.Thread(target=process_tiktok_video, args=(url_input,)).start()
+        # Run the process in a separate process
+        process = multiprocessing.Process(target=process_tiktok_video, args=(url_input,))
+        process.start()
+        process.join()
 
-# Set up the Telegram Bot to run within a separate thread
+# Telegram bot
 async def start(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /start is issued."""
     await update.message.reply_text("Send me a TikTok video link, and I will download it for you in HD format.")
@@ -152,8 +153,6 @@ async def handle_message(update: Update, context: CallbackContext) -> None:
         os.remove(download_path)
         if audio_path:  # Check if audio_path is not None before removing
             os.remove(audio_path)
-    else:
-        await update.message.reply_text("Failed to download the video. Please try again later.")
 
 async def main() -> None:
     """Start the Telegram bot."""
@@ -166,16 +165,16 @@ async def main() -> None:
     # Run the bot in the current event loop
     await application.run_polling(allowed_updates=None)
 
-# Ensure we run the Telegram bot in a separate thread
+# Start the Telegram bot in a separate process
 def start_bot():
     try:
         asyncio.run(main())
     except Exception as e:
         logger.error(f"Error starting Telegram bot: {e}")
 
-# Run the Telegram bot in a separate thread
-threading.Thread(target=start_bot).start()
+if __name__ == "__main__":
+    # Run the Telegram bot in a separate process
+    bot_process = multiprocessing.Process(target=start_bot)
+    bot_process.start()
+    bot_process.join()
 
-# Ensure Streamlit UI works in the main thread
-if __name__ == '__main__':
-    pass  # The main function will now run the bot in a separate thread
