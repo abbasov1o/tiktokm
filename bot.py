@@ -11,9 +11,8 @@ from telegram.ext import Application, CommandHandler, MessageHandler, CallbackCo
 from telegram.ext import filters
 import threading
 
-
 # Replace with your Telegram bot token
-TOKEN = "1715456897:AAF4RTmQOKp9H-_y-T5UDwgOLuVZO379aDI"  # Ensure to replace with your actual bot token
+TOKEN = "YOUR_BOT_API_KEY"  # Ensure to replace with your actual bot token
 
 # Set up logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
@@ -167,7 +166,7 @@ async def main() -> None:
     # Run the bot in the current event loop
     await application.run_polling(allowed_updates=None)
 
-# Ensure we don't call asyncio.run in Streamlit's event loop
+# Ensure we run the Telegram bot in the main thread
 if __name__ == '__main__':
     # Run the Telegram bot in the background (ensure compatibility with Streamlit's event loop)
-    threading.Thread(target=lambda: asyncio.run(main())).start()
+    asyncio.run(main())
