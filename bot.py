@@ -9,6 +9,7 @@ import asyncio
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, CallbackContext
 from telegram.ext import filters
+import multiprocessing
 
 # Replace with your Telegram bot token
 TOKEN = "1715456897:AAF4RTmQOKp9H-_y-T5UDwgOLuVZO379aDI"
@@ -162,17 +163,15 @@ async def main() -> None:
     # Run the bot in the current event loop
     await application.run_polling(allowed_updates=None)
 
+def run_telegram_bot():
+    """Start the Telegram bot in a separate process."""
+    asyncio.run(main())
+
 # Ensure the event loop is managed properly
 if __name__ == "__main__":
-    # Check if the loop is already running and schedule the task if it is
-    try:
-        loop = asyncio.get_event_loop()
-        if loop.is_running():
-            asyncio.ensure_future(main())
-        else:
-            loop.run_until_complete(main())
-    except RuntimeError as e:
-        if 'There is no current event loop' in str(e):
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-            loop.run_until_complete(main())  # Create a new event loop if necessary
+    # Start the Telegram bot in a separate process
+    p = multiprocessing.Process(target=run_telegram_bot)
+    p.start()
+    
+    # Start Streamlit interface here if needed (streamlit will run as normal)
+    # streamlit script or functions
