@@ -1,0 +1,4 @@
+aiogram==2.21.0
+requests==2.28.1
+yt-dlp==2023.09.01
+moviepy==1.0.3
