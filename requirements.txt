@@ -5,3 +5,4 @@ moviepy==1.0.3
 requests==2.26.0
 altair
 pillow
+pycopy-zlib
