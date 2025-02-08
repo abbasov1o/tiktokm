@@ -1,4 +1,4 @@
-aiogram==2.23.1
+aiogram
 yt-dlp
 requests
 moviepy==1.0.3
