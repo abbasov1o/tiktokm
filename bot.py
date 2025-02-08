@@ -9,6 +9,7 @@ import asyncio
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, CallbackContext
 from telegram.ext import filters
+import threading
 
 # Replace with your Telegram bot token
 TOKEN = "1715456897:AAF4RTmQOKp9H-_y-T5UDwgOLuVZO379aDI"
@@ -162,7 +163,11 @@ async def main() -> None:
     # Run the bot in the current event loop
     await application.run_polling(allowed_updates=None)
 
-# Start the Telegram bot in the current event loop (no new event loop created)
-if __name__ == "__main__":
-    # Use asyncio.run() to start the Telegram bot
+# Function to run the Telegram bot in a separate thread
+def run_bot():
     asyncio.run(main())
+
+# Start the Telegram bot in a separate thread
+if __name__ == "__main__":
+    bot_thread = threading.Thread(target=run_bot)
+    bot_thread.start()
