@@ -165,10 +165,13 @@ async def main() -> None:
     # Run the bot in the current event loop
     await application.run_polling(allowed_updates=None)
 
-# Start the Telegram bot in a separate process
+# Start the Telegram bot in a separate thread
 def start_bot():
     try:
-        asyncio.run(main())
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        loop.create_task(main())
+        loop.run_forever()
     except Exception as e:
         logger.error(f"Error starting Telegram bot: {e}")
 
