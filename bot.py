@@ -168,5 +168,9 @@ async def main() -> None:
 
 # Ensure we run the Telegram bot in the main thread
 if __name__ == '__main__':
-    # Create a task to run the Telegram bot in the existing event loop (for compatibility with Streamlit)
-    asyncio.create_task(main())
+    try:
+        # Check if an event loop is already running
+        loop = asyncio.get_event_loop()
+        loop.create_task(main())  # Add the task to the running event loop
+    except RuntimeError:  # If no event loop is running, create a new one
+        asyncio.run(main())
