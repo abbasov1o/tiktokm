@@ -7,7 +7,8 @@ from moviepy.editor import VideoFileClip
 import streamlit as st
 import threading
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Updater, CommandHandler, MessageHandler, CallbackContext, filters
+from telegram.ext import Application, CommandHandler, MessageHandler, CallbackContext
+from telegram.ext import filters
 
 
 # Replace with your Telegram bot token
@@ -121,20 +122,20 @@ if st.button("Download Video"):
         threading.Thread(target=process_tiktok_video, args=(url_input,)).start()
 
 # Set up the Telegram Bot to run in the background
-def start(update: Update, context: CallbackContext) -> None:
+async def start(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /start is issued."""
-    update.message.reply_text("Send me a TikTok video link, and I will download it for you in HD format.")
+    await update.message.reply_text("Send me a TikTok video link, and I will download it for you in HD format.")
 
-def handle_message(update: Update, context: CallbackContext) -> None:
+async def handle_message(update: Update, context: CallbackContext) -> None:
     """Handle incoming messages with a TikTok video URL."""
     video_url = update.message.text.strip()
     username = extract_username(video_url)  # Extract username from the URL
 
     if "tiktok.com" not in video_url:
-        update.message.reply_text("Please send a valid TikTok video URL.")
+        await update.message.reply_text("Please send a valid TikTok video URL.")
         return
 
-    update.message.reply_text("Video is being downloaded, please wait...")
+    await update.message.reply_text("Video is being downloaded, please wait...")
 
     download_path = download_tiktok_video(video_url)
     if download_path:
@@ -143,32 +144,34 @@ def handle_message(update: Update, context: CallbackContext) -> None:
 
         # Send both video and audio back to the user
         with open(download_path, 'rb') as video_file:
-            update.message.reply_video(video=video_file)
+            await update.message.reply_video(video=video_file)
 
         if audio_path:
             with open(audio_path, 'rb') as audio_file:
-                update.message.reply_audio(audio_file)
+                await update.message.reply_audio(audio_file)
 
         # Clean up: remove the video and audio files after sending
         os.remove(download_path)
         if audio_path:  # Check if audio_path is not None before removing
             os.remove(audio_path)
     else:
-        update.message.reply_text("Failed to download the video. Please try again later.")
+        await update.message.reply_text("Failed to download the video. Please try again later.")
 
-def main():
+async def main():
     """Start the Telegram bot."""
-    updater = Updater(TOKEN, use_context=True)
+    application = Application.builder().token(TOKEN).build()
 
     # Register handlers
-    updater.dispatcher.add_handler(CommandHandler("start", start))
-    updater.dispatcher.add_handler(MessageHandler(filters.text & ~filters.command, handle_message))
+    application.add_handler(CommandHandler("start", start))
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
-    # Start the Bot
-    updater.start_polling()
-
-    # Run the bot until you send a signal to stop
-    updater.idle()
+    # Run the Bot
+    await application.run_polling()
 
 # Run the Telegram Bot in the background
-threading.Thread(target=main).start()
+def run_bot():
+    import asyncio
+    asyncio.run(main())
+
+# Run Telegram bot in a separate thread
+threading.Thread(target=run_bot, daemon=True).start()
