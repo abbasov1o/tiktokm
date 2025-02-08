@@ -1,6 +1,6 @@
 streamlit==1.14.0
 python-telegram-bot
-yt-dlp==2021.12.1
+yt-dlp
 moviepy==1.0.3
 requests==2.26.0
 altair==4.2.0
