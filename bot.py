@@ -7,7 +7,7 @@ from moviepy.editor import VideoFileClip
 import streamlit as st
 import threading
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Updater, CommandHandler, MessageHandler, filters
+from telegram.ext import Updater, CommandHandler, MessageHandler, CallbackContext, filters
 
 
 # Replace with your Telegram bot token
