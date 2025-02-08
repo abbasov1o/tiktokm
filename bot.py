@@ -9,7 +9,6 @@ import asyncio
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, CallbackContext
 from telegram.ext import filters
-import multiprocessing
 
 # Replace with your Telegram bot token
 TOKEN = "1715456897:AAF4RTmQOKp9H-_y-T5UDwgOLuVZO379aDI"
@@ -116,9 +115,7 @@ if st.button("Download Video"):
                     os.remove(audio_path)
 
         # Run the process in a separate process
-        process = multiprocessing.Process(target=process_tiktok_video, args=(url_input,))
-        process.start()
-        process.join()
+        process_tiktok_video(url_input)
 
 # Telegram bot
 async def start(update: Update, context: CallbackContext) -> None:
@@ -165,19 +162,9 @@ async def main() -> None:
     # Run the bot in the current event loop
     await application.run_polling(allowed_updates=None)
 
-# Start the Telegram bot in a separate thread
-def start_bot():
-    try:
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        loop.create_task(main())
-        loop.run_forever()
-    except Exception as e:
-        logger.error(f"Error starting Telegram bot: {e}")
-
+# Start the Telegram bot in the current event loop (no new event loop created)
 if __name__ == "__main__":
-    # Run the Telegram bot in a separate process
-    bot_process = multiprocessing.Process(target=start_bot)
-    bot_process.start()
-    bot_process.join()
-
+    # Ensure the Telegram bot runs in the current event loop
+    loop = asyncio.get_event_loop()
+    loop.create_task(main())
+    loop.run_forever()
