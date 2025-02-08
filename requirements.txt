@@ -1,5 +1,5 @@
 streamlit
-aiogram==2.23.0
+aiogram==2.25.1
 aiohttp
 yt-dlp
 requests
