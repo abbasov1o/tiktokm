@@ -162,10 +162,10 @@ async def main() -> None:
     # Run the bot in the current event loop
     await application.run_polling(allowed_updates=None)
 
-# Function to run the Telegram bot in the main thread
+# Streamlit is already running an event loop, we use asyncio.create_task() here
 def run_bot():
-    asyncio.run(main())
+    asyncio.create_task(main())
 
-# Start the Telegram bot in the main thread
+# Start the Telegram bot in the main event loop
 if __name__ == "__main__":
     run_bot()
