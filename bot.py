@@ -164,8 +164,13 @@ async def main() -> None:
 
 # Ensure the event loop is managed properly
 if __name__ == "__main__":
+    # Check if the loop is already running and schedule the task if it is
     try:
-        asyncio.run(main())  # This will ensure the bot runs on Streamlit's event loop
+        loop = asyncio.get_event_loop()
+        if loop.is_running():
+            asyncio.ensure_future(main())
+        else:
+            loop.run_until_complete(main())
     except RuntimeError as e:
         if 'There is no current event loop' in str(e):
             loop = asyncio.new_event_loop()
