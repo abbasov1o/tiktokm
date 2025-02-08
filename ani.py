@@ -76,7 +76,7 @@ def create_social_media_buttons():
 
 @dp.message_handler(commands=['start'])
 async def start_command(message: types.Message):
-    await message.reply("Send me a TikTok video link, and I'll download it in HD for you!")
+    await message.reply("Mənə TikTok video linkini göndərin, mən onu sizin üçün HD formatında endirim")
 
 @dp.message_handler()
 async def handle_message(message: types.Message):
@@ -84,10 +84,10 @@ async def handle_message(message: types.Message):
     username = extract_username(video_url)  # Extract username from the URL
 
     if "tiktok.com" not in video_url:
-        await message.reply("Please send a valid TikTok video URL.")
+        await message.reply("Lütfən, etibarlı TikTok video URL göndərin.")
         return
     
-    await message.reply("Downloading video, please wait...")
+    await message.reply("Video endirilir, zəhmət olmasa gözləyin...")
     
     download_path = download_tiktok_video(video_url)
     if download_path:
@@ -99,18 +99,18 @@ async def handle_message(message: types.Message):
         
         # Send both video and audio back to the user
         with open(download_path, 'rb') as video_file:
-            await message.reply_video(video=video_file, caption="Here is your HD video! 🎥", reply_markup=social_media_buttons)
+            await message.reply_video(video=video_file, reply_markup=social_media_buttons)
         
         if audio_path:
             with open(audio_path, 'rb') as audio_file:
-                await message.reply_audio(audio_file, caption="Here is the extracted audio! 🎵")
+                await message.reply_audio(audio_file)
         
         # Clean up: remove the video and audio files after sending
         os.remove(download_path)
         if audio_path:  # Check if audio_path is not None before removing
             os.remove(audio_path)
     else:
-        await message.reply("Failed to download the video. Please try again later.")
+        await message.reply("Videonu endirmək alınmadı. Daha sonra yenidən cəhd edin.")
 
 if __name__ == "__main__":
     executor.start_polling(dp, skip_updates=True)
