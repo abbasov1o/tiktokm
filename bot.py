@@ -3,20 +3,16 @@ import os
 import re
 import requests
 import yt_dlp
-from aiogram import Bot, Dispatcher, types
-from aiogram.utils import executor
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from moviepy.editor import VideoFileClip
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
 
 # Replace with your Telegram bot token
-TOKEN = "1715456897:AAF4RTmQOKp9H-_y-T5UDwgOLuVZO379aDI"
+TOKEN = "YOUR_BOT_TOKEN"
 
-# Initialize bot and dispatcher
-bot = Bot(token=TOKEN)
-dp = Dispatcher(bot)
-
-# Configure logging
-logging.basicConfig(level=logging.INFO)
+# Set up logging
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 def get_full_url(short_url):
     """Resolve the shortened TikTok URL to its full URL."""
@@ -48,7 +44,7 @@ def download_tiktok_video(video_url):
             info_dict = ydl.extract_info(video_url, download=True)
             return ydl.prepare_filename(info_dict)  # Return the path of the downloaded file
     except Exception as e:
-        logging.error(f"Error downloading video: {e}")
+        logger.error(f"Error downloading video: {e}")
         return None
 
 def extract_audio_from_video(video_path, username):
@@ -61,7 +57,7 @@ def extract_audio_from_video(video_path, username):
         audio.write_audiofile(audio_file_path)  # Export as MP3
         return audio_file_path
     except Exception as e:
-        logging.error(f"Error extracting audio: {e}")
+        logger.error(f"Error extracting audio: {e}")
         return None
 
 def create_social_media_buttons():
@@ -74,50 +70,57 @@ def create_social_media_buttons():
     )
     return keyboard
 
-async def main():
-    """Main async function to run the bot polling."""
-    @dp.message_handler(commands=['start'])
-    async def start_command(message: types.Message):
-        await message.reply("Mənə TikTok video linkini göndərin, mən onu sizin üçün HD formatında endirim")
+def start(update: Update, context: CallbackContext) -> None:
+    """Send a message when the command /start is issued."""
+    update.message.reply_text("Mənə TikTok video linkini göndərin, mən onu sizin üçün HD formatında endirim.")
 
-    @dp.message_handler()
-    async def handle_message(message: types.Message):
-        video_url = message.text.strip()
-        username = extract_username(video_url)  # Extract username from the URL
+def handle_message(update: Update, context: CallbackContext) -> None:
+    """Handle incoming messages with a TikTok video URL."""
+    video_url = update.message.text.strip()
+    username = extract_username(video_url)  # Extract username from the URL
 
-        if "tiktok.com" not in video_url:
-            await message.reply("Lütfən, etibarlı TikTok video URL göndərin.")
-            return
+    if "tiktok.com" not in video_url:
+        update.message.reply_text("Lütfən, etibarlı TikTok video URL göndərin.")
+        return
 
-        await message.reply("Video endirilir, zəhmət olmasa gözləyin...")
+    update.message.reply_text("Video endirilir, zəhmət olmasa gözləyin...")
 
-        download_path = download_tiktok_video(video_url)
-        if download_path:
-            # Extract audio from the downloaded video using the username
-            audio_path = extract_audio_from_video(download_path, username)
+    download_path = download_tiktok_video(video_url)
+    if download_path:
+        # Extract audio from the downloaded video using the username
+        audio_path = extract_audio_from_video(download_path, username)
 
-            # Create social media buttons
-            social_media_buttons = create_social_media_buttons()
+        # Create social media buttons
+        social_media_buttons = create_social_media_buttons()
 
-            # Send both video and audio back to the user
-            with open(download_path, 'rb') as video_file:
-                await message.reply_video(video=video_file, reply_markup=social_media_buttons)
+        # Send both video and audio back to the user
+        with open(download_path, 'rb') as video_file:
+            update.message.reply_video(video=video_file, reply_markup=social_media_buttons)
 
-            if audio_path:
-                with open(audio_path, 'rb') as audio_file:
-                    await message.reply_audio(audio_file)
+        if audio_path:
+            with open(audio_path, 'rb') as audio_file:
+                update.message.reply_audio(audio_file)
 
-            # Clean up: remove the video and audio files after sending
-            os.remove(download_path)
-            if audio_path:  # Check if audio_path is not None before removing
-                os.remove(audio_path)
-        else:
-            await message.reply("Videonu endirmək alınmadı. Daha sonra yenidən cəhd edin.")
+        # Clean up: remove the video and audio files after sending
+        os.remove(download_path)
+        if audio_path:  # Check if audio_path is not None before removing
+            os.remove(audio_path)
+    else:
+        update.message.reply_text("Videonu endirmək alınmadı. Daha sonra yenidən cəhd edin.")
 
-    # Start polling the bot
-    executor.start_polling(dp, skip_updates=True)
+def main():
+    """Start the bot."""
+    updater = Updater(TOKEN, use_context=True)
 
-# Ensure the event loop is set in the main thread
-if __name__ == "__main__":
-    import asyncio
-    asyncio.run(main())
+    # Register handlers
+    updater.dispatcher.add_handler(CommandHandler("start", start))
+    updater.dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_message))
+
+    # Start the Bot
+    updater.start_polling()
+
+    # Run the bot until you send a signal to stop
+    updater.idle()
+
+if __name__ == '__main__':
+    main()
