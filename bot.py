@@ -164,7 +164,8 @@ async def main() -> None:
 
 def run_telegram_bot():
     """Start the Telegram bot."""
-    asyncio.create_task(main())  # Use asyncio.create_task() instead of asyncio.run()
+    loop = asyncio.get_event_loop()  # Get the current running event loop
+    loop.create_task(main())  # Schedule the main() coroutine to run in the current event loop
 
 # Ensure the event loop is managed properly
 if __name__ == "__main__":
