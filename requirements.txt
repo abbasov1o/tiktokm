@@ -1,5 +1,6 @@
 streamlit
 aiogram==2.23.0
+aiohttp
 yt-dlp
 requests
 moviepy==1.0.3
