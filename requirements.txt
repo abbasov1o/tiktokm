@@ -1,4 +1,0 @@
-aiogram
-requests
-yt-dlp
-moviepy
