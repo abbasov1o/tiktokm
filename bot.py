@@ -165,7 +165,7 @@ def main() -> None:
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
     # Run the bot in the current event loop
-    application.run_polling(allowed_updates=Update.ALL)
+    application.run_polling(allowed_updates=none)
 
 # Ensure we don't call asyncio.run in Streamlit's event loop
 if __name__ == '__main__':
