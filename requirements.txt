@@ -1,0 +1,4 @@
+aiogram==2.23.1
+yt-dlp
+requests
+moviepy==1.0.3
