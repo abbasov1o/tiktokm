@@ -3,6 +3,6 @@ python-telegram-bot==20.0
 yt-dlp==2021.12.1
 moviepy==1.0.3
 requests==2.26.0
-altair
+altair==4.2.0
 pillow
 pycopy-zlib
