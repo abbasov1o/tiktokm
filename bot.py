@@ -119,7 +119,7 @@ if st.button("Download Video"):
         # Run the process in a separate thread
         threading.Thread(target=process_tiktok_video, args=(url_input,)).start()
 
-# Set up the Telegram Bot to run within the existing event loop (for Streamlit compatibility)
+# Set up the Telegram Bot to run within a separate thread
 async def start(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /start is issued."""
     await update.message.reply_text("Send me a TikTok video link, and I will download it for you in HD format.")
@@ -166,11 +166,16 @@ async def main() -> None:
     # Run the bot in the current event loop
     await application.run_polling(allowed_updates=None)
 
-# Ensure we run the Telegram bot in the main thread
-if __name__ == '__main__':
+# Ensure we run the Telegram bot in a separate thread
+def start_bot():
     try:
-        # Check if an event loop is already running
-        loop = asyncio.get_event_loop()
-        loop.create_task(main())  # Add the task to the running event loop
-    except RuntimeError:  # If no event loop is running, create a new one
         asyncio.run(main())
+    except Exception as e:
+        logger.error(f"Error starting Telegram bot: {e}")
+
+# Run the Telegram bot in a separate thread
+threading.Thread(target=start_bot).start()
+
+# Ensure Streamlit UI works in the main thread
+if __name__ == '__main__':
+    pass  # The main function will now run the bot in a separate thread
