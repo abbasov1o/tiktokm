@@ -7,8 +7,8 @@ from moviepy.editor import VideoFileClip
 import streamlit as st
 import threading
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Updater, CommandHandler, MessageHandler
-from telegram.ext.filters import Filters
+from telegram.ext import Updater, CommandHandler, MessageHandler, filters
+
 
 # Replace with your Telegram bot token
 TOKEN = "1715456897:AAF4RTmQOKp9H-_y-T5UDwgOLuVZO379aDI"
@@ -162,7 +162,7 @@ def main():
 
     # Register handlers
     updater.dispatcher.add_handler(CommandHandler("start", start))
-    updater.dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_message))
+    updater.dispatcher.add_handler(MessageHandler(filters.text & ~filters.command, handle_message))
 
     # Start the Bot
     updater.start_polling()
