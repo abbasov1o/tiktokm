@@ -9,7 +9,7 @@ from aiogram.utils import executor
 from moviepy.editor import VideoFileClip
 
 # Replace with your Telegram bot token
-TOKEN = "YOUR_TOKEN"
+TOKEN = "1715456897:AAF4RTmQOKp9H-_y-T5UDwgOLuVZO379aDI"
 
 # Initialize bot and dispatcher
 bot = Bot(token=TOKEN)
