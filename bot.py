@@ -164,7 +164,5 @@ async def main() -> None:
 
 # Start the Telegram bot in the current event loop (no new event loop created)
 if __name__ == "__main__":
-    # Ensure the Telegram bot runs in the current event loop
-    loop = asyncio.get_event_loop()
-    loop.create_task(main())
-    loop.run_forever()
+    # Use asyncio.run() to start the Telegram bot
+    asyncio.run(main())
