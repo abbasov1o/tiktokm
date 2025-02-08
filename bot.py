@@ -12,7 +12,7 @@ from telegram.ext import filters
 import threading
 
 # Replace with your Telegram bot token
-TOKEN = "YOUR_BOT_API_KEY"  # Ensure to replace with your actual bot token
+TOKEN = "1715456897:AAF4RTmQOKp9H-_y-T5UDwgOLuVZO379aDI"  # Ensure to replace with your actual bot token
 
 # Set up logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
@@ -168,5 +168,5 @@ async def main() -> None:
 
 # Ensure we run the Telegram bot in the main thread
 if __name__ == '__main__':
-    # Run the Telegram bot in the background (ensure compatibility with Streamlit's event loop)
-    asyncio.run(main())
+    # Create a task to run the Telegram bot in the existing event loop (for compatibility with Streamlit)
+    asyncio.create_task(main())
